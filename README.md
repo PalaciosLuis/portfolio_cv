@@ -2,7 +2,7 @@
 
 Sitio web personal de **Luis Javier Palacios Sernaque**, Backend & Full-Stack Developer.
 
-🔗 **Demo:** _(se agrega cuando esté desplegado en Vercel)_
+🔗 **Demo:** https://portfoliocv-steel.vercel.app/
 
 ## Qué es
 
