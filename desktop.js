@@ -50,6 +50,17 @@
     return window.innerWidth <= MOBILE_MAX;
   }
 
+  /* Rectángulo del hero usado como widget de escritorio (arriba a la derecha).
+     Devuelve null si no aplica (modo clásico) o si aún no tiene layout. */
+  function desktopHeroRect() {
+    if (!doc.classList.contains('desktop-mode')) return null;
+    var hero = document.querySelector('.hero');
+    if (!hero) return null;
+    var r = hero.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;')
@@ -249,6 +260,10 @@
     if (ww < 300) ww = Math.max(240, vw - 20);
     if (wh < 220) wh = Math.max(180, vh - 20);
 
+    /* En desktop el widget del hero ocupa la esquina superior derecha: las
+       ventanas nunca deben nacer debajo de él. En mobile lo resol el CSS. */
+    var heroR = isMobile() ? null : desktopHeroRect();
+
     /* A la derecha de la columna de iconos (96px de ancho + 14px de margen),
        para que los 7 iconos sigan visibles y clicables con la ventana abierta. */
     var left = 124;
@@ -267,6 +282,15 @@
       if (x < 8) x = 8;
       if (y + wh > vh - 8) y = vh - wh - 8;
       if (y < 8) y = 8;
+      /* No invadir el widget del hero: si la ventana cae en su franja
+         vertical se limita el ancho a su izquierda; si no entra, se corre
+         por debajo del widget. */
+      if (heroR && y < heroR.bottom + 12 && x + ww > heroR.left - 16) {
+        var limit = heroR.left - 16 - x;
+        if (limit >= 300) ww = limit;
+        else if (heroR.bottom + 16 + wh <= vh - 8) y = heroR.bottom + 16;
+        else ww = Math.max(300, limit);
+      }
       if (n > 0) {
         /* El clamp puede saturar la diagonal en viewports chicos: un paso
            pequeño y variable evita repetir la posición exacta. */
@@ -315,6 +339,14 @@
     if (id === 'terminal' && w.termInput) {
       try { w.termInput.focus(); } catch (e) {}
     }
+  }
+
+  function minimizeWindow(w) {
+    w.minimized = true;
+    w.el.style.display = 'none';
+    w.el.classList.remove('is-focused');
+    if (focused === w) focused = null;
+    renderTasks();
   }
 
   function closeWindow(w) {
@@ -415,6 +447,20 @@
         unmaximize(w);
       }
     });
+    syncHeroWidget();
+  }
+
+  /* Publica la altura real del widget del hero para que, en mobile, los
+     iconos y la ventana maximizada arranquen debajo y el nombre quede
+     visible sin un clic. Fuera de ese caso limpia la variable. */
+  function syncHeroWidget() {
+    var hero = document.querySelector('.hero');
+    if (!hero) return;
+    if (doc.classList.contains('desktop-mode') && isMobile()) {
+      doc.style.setProperty('--hero-widget-h', Math.round(hero.getBoundingClientRect().bottom) + 'px');
+    } else {
+      doc.style.removeProperty('--hero-widget-h');
+    }
   }
 
   /* ============================ menú del panel ============================ */
@@ -694,6 +740,7 @@
       trayLang.addEventListener('click', function () {
         var t = document.getElementById('langToggle');
         if (t) t.click();
+        syncHeroWidget();
       });
     }
     var classicBtn = document.getElementById('modeToggleDesktop');
@@ -704,9 +751,16 @@
     updateClock();
     setInterval(updateClock, 30000);
     window.addEventListener('resize', syncMobile);
+    /* La altura del widget depende de la tipografía: recalcular al cargar y
+       cuando las webfonts terminan de asentarse. */
+    window.addEventListener('load', syncHeroWidget);
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(syncHeroWidget);
+    }
 
     /* El escritorio es el modo por defecto cuando hay JavaScript. */
     doc.classList.add('desktop-mode');
+    syncHeroWidget();
 
     /* Primer pantallazo: nombre, rol y disponibilidad sin un clic. */
     autoOpenAbout();
@@ -729,12 +783,14 @@
     renderTasks();
     updateIconState();
     doc.classList.remove('desktop-mode');
+    syncHeroWidget();
     /* El modo clásico (y el render sin JS) no oculta nada. */
     syncSectionA11y();
   }
 
   function enableDesktopMode() {
     doc.classList.add('desktop-mode');
+    syncHeroWidget();
     each(order, function (w) {
       if (w.wasOpen) openApp(w.id);
     });

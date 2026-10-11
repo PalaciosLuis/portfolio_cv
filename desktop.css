@@ -25,8 +25,7 @@ html.desktop-mode body { overflow: hidden; height: 100%; }
 /* En escritorio el chrome del sitio clásico no se muestra. Las secciones
    siguen en el DOM y desktop.js las mueve dentro de cada ventana. */
 html.desktop-mode .site-header,
-html.desktop-mode .site-footer,
-html.desktop-mode .hero { display: none; }
+html.desktop-mode .site-footer { display: none; }
 
 /* Dentro de las ventanas el contenido no depende del observer de scroll. */
 html.desktop-mode [data-reveal] { opacity: 1; transform: none; transition: none; }
@@ -34,6 +33,41 @@ html.desktop-mode [data-reveal] { opacity: 1; transform: none; transition: none;
 html.desktop-mode .desktop-shell { display: block; }
 html.desktop-mode.is-dragging { cursor: grabbing; }
 html.desktop-mode.is-dragging body { user-select: none; -webkit-user-select: none; }
+
+/* ---------- Hero reutilizado como widget de escritorio (desklet) ----------
+   Mismo DOM y mismo texto que el hero clásico: cero duplicación. En modo
+   escritorio deja de ocultarse y pasa a ser una tarjeta arriba a la derecha,
+   en el hueco libre frente a la columna de iconos (que va a la izquierda).
+   Se neutralizan su fondo y su grilla para que se lea como parte del
+   escritorio y no como un bloque pegado. */
+html.desktop-mode .hero {
+  display: block;
+  position: fixed;
+  top: 18px; right: 22px; left: auto;
+  z-index: 1;
+  width: clamp(240px, 24vw, 320px);
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+  color: rgba(255, 255, 255, .82);
+}
+html.desktop-mode .hero::after { display: none; }
+html.desktop-mode .hero-inner {
+  max-width: none;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: rgba(5, 17, 30, .52);
+  border: 1px solid rgba(255, 255, 255, .13);
+  box-shadow: 0 20px 45px -22px rgba(0, 0, 0, .75);
+  -webkit-backdrop-filter: saturate(150%) blur(10px);
+          backdrop-filter: saturate(150%) blur(10px);
+}
+html.desktop-mode .hero-badge { margin: 0 0 12px; font-size: 12px; padding: 4px 11px; }
+html.desktop-mode .hero-name { font-size: 1.45rem; line-height: 1.15; margin: 0 0 6px; }
+html.desktop-mode .hero-role { font-size: .95rem; margin: 0 0 8px; }
+html.desktop-mode .hero-tags { font-size: 11.5px; line-height: 1.4; margin: 0; }
+html.desktop-mode .hero-pitch,
+html.desktop-mode .hero-actions { display: none; }
 
 /* ---------- Fondo propio (navy + turquesa) ----------
    Degradado + grilla sutil de la paleta del sitio.
@@ -233,8 +267,28 @@ html.desktop-mode.is-dragging body { user-select: none; -webkit-user-select: non
    Mobile (< 768px): iconos en grilla, ventanas maximizadas, panel compacto
    ============================================================ */
 @media (max-width: 767px) {
+  /* El widget del hero pasa a barra compacta a lo ancho y por encima de todo:
+     así el nombre, el rol y la disponibilidad se ven sin un clic aunque la
+     ventana "Sobre mí" abra maximizada. La franja real la publica desktop.js
+     en --hero-widget-h; iconos y ventana maximizada arrancan debajo. */
+  html.desktop-mode .hero {
+    top: 8px; left: 8px; right: 8px;
+    width: auto;
+    z-index: 3;
+  }
+  html.desktop-mode .hero-inner {
+    padding: 10px 12px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px;
+  }
+  html.desktop-mode .hero-badge { order: 1; margin: 0; font-size: 11px; padding: 3px 9px; }
+  html.desktop-mode .hero-name { order: 2; flex: 1 1 100%; font-size: 1.1rem; margin: 2px 0 0; }
+  html.desktop-mode .hero-role { order: 3; font-size: .85rem; margin: 4px 0 0; }
+  html.desktop-mode .hero-tags { order: 4; flex: 1 1 100%; font-size: 10.5px; margin: 2px 0 0; }
+
+  .wm-window.is-maximized { top: var(--hero-widget-h, 96px) !important; }
+
   .desktop-icons {
-    top: 12px; left: 10px; right: 10px; bottom: auto; width: auto;
+    top: calc(var(--hero-widget-h, 96px) + 12px); left: 10px; right: 10px; bottom: auto; width: auto;
     flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 2px;
     overflow: visible;
   }
