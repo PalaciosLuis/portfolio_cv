@@ -6,6 +6,7 @@
 <title>Luis Palacios — Backend &amp; Full-Stack Developer</title>
 <meta name="description" content="Backend &amp; Full-Stack Developer especializado en Python, Django y plataformas SaaS multitenant. APIs, integraciones y seguridad de la información.">
 <meta name="author" content="Luis Javier Palacios Sernaque">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b2a4a'/%3E%3Ctext x='16' y='21.5' font-family='Inter,Arial,sans-serif' font-size='13' font-weight='700' fill='%23ffffff' text-anchor='middle'%3ELP%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="Luis Palacios — Backend &amp; Full-Stack Developer">
 <meta property="og:description" content="Python · Django · SaaS multitenant · APIs e integraciones · ISO 27001 Foundation">
 <meta property="og:type" content="website">
@@ -13,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="desktop.css">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -50,6 +52,10 @@
     <button class="lang-toggle" id="langToggle" type="button" aria-label="Cambiar idioma / Switch language">
       <span class="lang-opt" data-lang="es">EN</span>
       <span class="lang-opt" data-lang="en">ES</span>
+    </button>
+    <button class="lang-toggle mode-toggle" id="modeToggle" type="button" aria-label="Cambiar al modo escritorio / Switch to desktop mode">
+      <span data-lang="es">Escritorio</span>
+      <span data-lang="en">Desktop</span>
     </button>
   </div>
 </header>
@@ -441,6 +447,96 @@
   </div>
 </footer>
 
+<!-- ============================================================
+     Escritorio Debian/Cinnamon (Fase 1)
+     Capa de presentación. Sin JavaScript queda oculta y el contenido
+     de las secciones se ve apilado y legible, igual que el sitio actual.
+     ============================================================ -->
+<div class="desktop-shell" id="desktopShell">
+  <div class="desktop-bg" aria-hidden="true"></div>
+
+  <nav class="desktop-icons" id="desktopIcons" aria-label="Accesos del escritorio / Desktop shortcuts">
+    <button class="di" type="button" data-open="sobre-mi">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2c.7 0 1.3.3 1.8.8l1 1c.4.4 1 .7 1.6.7h5.4A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>
+      <span class="di-name"><span data-lang="es">Sobre mí</span><span data-lang="en">About me</span></span>
+    </button>
+    <button class="di" type="button" data-open="experiencia">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2c.7 0 1.3.3 1.8.8l1 1c.4.4 1 .7 1.6.7h5.4A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>
+      <span class="di-name"><span data-lang="es">Experiencia</span><span data-lang="en">Experience</span></span>
+    </button>
+    <button class="di" type="button" data-open="skills">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2c.7 0 1.3.3 1.8.8l1 1c.4.4 1 .7 1.6.7h5.4A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>
+      <span class="di-name"><span data-lang="es">Skills</span><span data-lang="en">Skills</span></span>
+    </button>
+    <button class="di" type="button" data-open="proyectos">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2c.7 0 1.3.3 1.8.8l1 1c.4.4 1 .7 1.6.7h5.4A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>
+      <span class="di-name"><span data-lang="es">Proyectos</span><span data-lang="en">Projects</span></span>
+    </button>
+    <button class="di" type="button" data-open="contacto">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2c.7 0 1.3.3 1.8.8l1 1c.4.4 1 .7 1.6.7h5.4A2.5 2.5 0 0 1 21 10v7.5A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>
+      <span class="di-name"><span data-lang="es">Contacto</span><span data-lang="en">Contact</span></span>
+    </button>
+    <button class="di" type="button" data-open="cv">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/></svg></span>
+      <span class="di-name"><span data-lang="es">CV — Luis Palacios</span><span data-lang="en">CV — Luis Palacios</span></span>
+    </button>
+    <button class="di" type="button" data-open="terminal">
+      <span class="di-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7.5 10 2.5 2.5-2.5 2.5"/><path d="M13 15h4"/></svg></span>
+      <span class="di-name"><span data-lang="es">Terminal</span><span data-lang="en">Terminal</span></span>
+    </button>
+  </nav>
+
+  <div class="desktop-windows" id="desktopWindows"></div>
+
+  <div class="desktop-panel" id="desktopPanel">
+    <button class="panel-menu-btn" id="panelMenuBtn" type="button" aria-label="Menú de aplicaciones / Applications menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5a4.5 4.5 0 1 1-4.3 5.8"/></svg>
+    </button>
+    <div class="panel-menu" id="panelMenu" hidden></div>
+    <div class="panel-tasks" id="panelTasks" aria-label="Ventanas abiertas / Open windows"></div>
+    <div class="panel-tray">
+      <button class="tray-btn" id="trayLangToggle" type="button" aria-label="Cambiar idioma / Switch language">
+        <span data-lang="es">EN</span><span data-lang="en">ES</span>
+      </button>
+      <button class="tray-btn tray-classic" id="modeToggleDesktop" type="button" aria-label="Cambiar al modo clásico / Switch to classic mode">
+        <span data-lang="es">Modo clásico</span><span data-lang="en">Classic mode</span>
+      </button>
+      <div class="tray-clock" id="trayClock" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
+
+<template id="tpl-cv">
+  <div class="app-cv">
+    <p class="app-cv-text">
+      <span data-lang="es">Descargá mi CV completo en el idioma que prefieras.</span>
+      <span data-lang="en">Download my full CV in the language you prefer.</span>
+    </p>
+    <div class="app-cv-actions">
+      <a class="btn btn-primary" href="cv/Luis-Palacios-CV-ES.pdf" download>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+        <span data-lang="es">CV en español</span><span data-lang="en">CV in Spanish</span>
+      </a>
+      <a class="btn btn-primary" href="cv/Luis-Palacios-CV-EN.pdf" download>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+        <span data-lang="es">CV en inglés</span><span data-lang="en">CV in English</span>
+      </a>
+    </div>
+    <p class="app-cv-path">cv/Luis-Palacios-CV-ES.pdf<br>cv/Luis-Palacios-CV-EN.pdf</p>
+  </div>
+</template>
+
+<template id="tpl-terminal">
+  <div class="term">
+    <div class="term-screen" role="log" aria-live="polite"></div>
+    <form class="term-form" autocomplete="off">
+      <span class="term-ps1">luis@debian:~$</span>
+      <input class="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal / Terminal input">
+    </form>
+  </div>
+</template>
+
 <script src="main.js"></script>
+<script src="desktop.js"></script>
 </body>
 </html>

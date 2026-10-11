@@ -1,0 +1,266 @@
+/* ============================================================
+   Luis Palacios — Portfolio · Escritorio Debian/Cinnamon (Fase 1)
+   ------------------------------------------------------------
+   Se carga DESPUÉS de styles.css y todo el layout queda acotado al
+   estado html.desktop-mode, para no alterar nunca el modo clásico ni
+   el render sin JavaScript. Reusa los tokens de styles.css.
+   ============================================================ */
+
+:root { --panel-h: 44px; }
+
+/* Sin JS (o en modo clásico) el escritorio no existe. */
+.desktop-shell { display: none; }
+
+/* Botón para VOLVER al escritorio desde el modo clásico.
+   Solo se muestra cuando el JS está activo y NO estamos en escritorio. */
+.mode-toggle { display: none; }
+html.js:not(.desktop-mode) .mode-toggle { display: inline-flex; }
+
+/* ============================================================
+   Modo escritorio
+   ============================================================ */
+html.desktop-mode { --panel-h: 44px; }
+html.desktop-mode body { overflow: hidden; height: 100%; }
+
+/* En escritorio el chrome del sitio clásico no se muestra. Las secciones
+   siguen en el DOM y desktop.js las mueve dentro de cada ventana. */
+html.desktop-mode .site-header,
+html.desktop-mode .site-footer,
+html.desktop-mode .hero { display: none; }
+
+/* Dentro de las ventanas el contenido no depende del observer de scroll. */
+html.desktop-mode [data-reveal] { opacity: 1; transform: none; transition: none; }
+
+html.desktop-mode .desktop-shell { display: block; }
+html.desktop-mode.is-dragging { cursor: grabbing; }
+html.desktop-mode.is-dragging body { user-select: none; -webkit-user-select: none; }
+
+/* ---------- Fondo propio (navy + turquesa) ----------
+   Degradado + grilla sutil de la paleta del sitio.
+   NO es el wallpaper oficial de Debian/Cinnamon (arte con copyright). */
+.desktop-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 78% 12%, rgba(23, 162, 184, .28), transparent 60%),
+    radial-gradient(720px 480px at 8% 88%, rgba(23, 162, 184, .13), transparent 62%),
+    linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-soft) 100%);
+}
+.desktop-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(900px 620px at 50% 38%, #000 30%, transparent 80%);
+  mask-image: radial-gradient(900px 620px at 50% 38%, #000 30%, transparent 80%);
+}
+
+/* ============================================================
+   Iconos del escritorio (columna a la izquierda)
+   ============================================================ */
+.desktop-icons {
+  position: fixed; top: 14px; left: 14px; z-index: 1;
+  bottom: calc(var(--panel-h) + 14px);
+  width: 96px; display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto; overflow-x: hidden;
+}
+.di {
+  font: inherit; color: #fff; cursor: pointer;
+  background: transparent; border: 0; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 8px 6px; flex: none;
+  transition: background .15s ease;
+}
+.di:hover, .di:focus-visible { background: rgba(255, 255, 255, .10); outline: none; }
+.di.is-open { background: rgba(23, 162, 184, .22); }
+.di-ico { width: 44px; height: 44px; display: grid; place-items: center; color: #cdeaf2; }
+.di-ico svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.di.is-open .di-ico, .di:hover .di-ico { color: #7fe4f5; }
+.di-name {
+  font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center;
+  color: rgba(255, 255, 255, .92);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .55);
+}
+
+/* ============================================================
+   Capa de ventanas
+   ============================================================ */
+.desktop-windows {
+  position: fixed; left: 0; right: 0; top: 0; bottom: var(--panel-h);
+  z-index: 2; pointer-events: none; overflow: hidden;
+}
+.wm-window {
+  position: absolute; pointer-events: auto;
+  display: flex; flex-direction: column;
+  min-width: 300px; min-height: 200px;
+  background: var(--bg);
+  border-radius: 10px 10px 0 0;   /* titlebar redondeada, base sin redondear */
+  box-shadow: 0 22px 55px -18px rgba(0, 0, 0, .55);
+  overflow: hidden;
+}
+.wm-window:not(.is-focused) { box-shadow: 0 10px 28px -12px rgba(0, 0, 0, .45); }
+
+.wm-titlebar {
+  flex: none; height: 34px; display: flex; align-items: center; gap: 8px;
+  padding: 0 6px 0 12px;
+  background: #eef2f7; border-bottom: 1px solid var(--line);
+  -webkit-user-select: none; user-select: none;
+}
+.wm-window.is-focused .wm-titlebar { background: linear-gradient(180deg, #ffffff, var(--bg-alt)); }
+.wm-title {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wm-window.is-focused .wm-title { color: var(--ink); }
+.wm-controls { flex: none; display: flex; gap: 3px; }
+.wm-btn {
+  width: 26px; height: 22px; padding: 0; cursor: pointer;
+  display: grid; place-items: center;
+  background: transparent; border: 0; border-radius: 5px; color: var(--muted);
+}
+.wm-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.wm-btn:hover { background: var(--line); color: var(--ink); }
+.wm-close:hover { background: #e5484d; color: #fff; }
+
+.wm-body { flex: 1 1 auto; min-height: 0; overflow: auto; background: var(--bg); }
+
+/* Contenido de sección dentro de una ventana (neutraliza el layout clásico). */
+.wm-body > .section { padding: 22px 26px 28px; }
+.wm-body > .section.section-alt { background: transparent; border: 0; }
+.wm-body .wrap { max-width: none; padding: 0; }
+.wm-body .facts { grid-template-columns: 1fr 1fr; }
+.wm-body .skills-grid { grid-template-columns: 1fr 1fr; }
+
+/* App CV */
+.app-cv { padding: 26px; }
+.app-cv-text { font-size: 16px; color: var(--body); max-width: 52ch; }
+.app-cv-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 22px; }
+.app-cv-path {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--muted); margin: 0;
+  background: var(--bg-alt); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px; display: inline-block;
+}
+/* Botones claros dentro de la ventana */
+.wm-body .btn { border-color: var(--line); color: var(--navy); background: #fff; }
+.wm-body .btn:hover { background: var(--bg-alt); }
+.wm-body .btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: 0 10px 24px -12px rgba(11, 42, 74, .5); }
+.wm-body .btn-primary:hover { background: var(--navy-soft); }
+
+/* ============================================================
+   Terminal mínima
+   ============================================================ */
+.wm-body-term { overflow: hidden; display: flex; padding: 0; }
+.term { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+  background: var(--navy-deep); color: #cdeaf2; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.term-screen { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 14px 16px 4px; font-size: 13px; line-height: 1.55; }
+.term-line { white-space: pre-wrap; word-break: break-word; margin: 0 0 2px; }
+.term-out { white-space: pre-wrap; }
+.term-cmd { color: #e6f7fa; }
+.term-ps1 { color: #7fe4f5; }
+.term-form { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 16px 14px; border-top: 1px solid rgba(255, 255, 255, .08); }
+.term-input {
+  flex: 1 1 auto; min-width: 0; padding: 4px 0;
+  background: transparent; border: 0; outline: none;
+  color: #e6f7fa; font: inherit; font-size: 13px;
+}
+.term-input::selection { background: rgba(23, 162, 184, .45); }
+
+/* ============================================================
+   Panel inferior (estilo Cinnamon)
+   ============================================================ */
+.desktop-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; height: var(--panel-h);
+  z-index: 100; display: flex; align-items: center; gap: 8px; padding: 0 8px;
+  background: rgba(5, 17, 30, .94);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
+  backdrop-filter: saturate(160%) blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, .09);
+}
+.panel-menu-btn {
+  flex: none; width: 34px; height: 30px; cursor: pointer;
+  display: grid; place-items: center; color: #cdeaf2;
+  background: transparent; border: 0; border-radius: 7px;
+}
+.panel-menu-btn:hover, .panel-menu-btn.is-active { background: rgba(255, 255, 255, .12); color: #7fe4f5; }
+.panel-menu-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.panel-tasks { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; overflow: hidden; }
+.panel-task {
+  font: inherit; font-size: 12px; cursor: pointer; max-width: 190px;
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+  color: rgba(255, 255, 255, .85); background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12); border-radius: 6px;
+}
+.panel-task:hover { background: rgba(255, 255, 255, .14); }
+.panel-task.is-active { background: rgba(23, 162, 184, .3); border-color: rgba(23, 162, 184, .55); color: #fff; }
+.panel-task.is-minimized { opacity: .6; }
+.task-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.panel-tray { flex: none; margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.tray-btn {
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  padding: 5px 11px; border-radius: 999px; letter-spacing: .02em;
+  color: #fff; background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .24);
+}
+.tray-btn:hover { background: rgba(255, 255, 255, .16); }
+.tray-clock {
+  font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11.5px; line-height: 1.2;
+  color: rgba(255, 255, 255, .9); text-align: right; padding: 0 8px 0 4px; white-space: nowrap;
+}
+
+/* Menú de aplicaciones (Fase 1: lista simple, mismos accesos que los iconos). */
+.panel-menu {
+  position: fixed; left: 8px; bottom: calc(var(--panel-h) + 8px); z-index: 110;
+  width: 250px; max-height: 60vh; overflow: auto; padding: 8px;
+  background: rgba(8, 28, 48, .98);
+  border: 1px solid rgba(255, 255, 255, .14); border-radius: 12px;
+  box-shadow: 0 24px 55px -18px rgba(0, 0, 0, .7);
+}
+.panel-menu[hidden] { display: none; }
+.panel-menu-item {
+  font: inherit; font-size: 13.5px; cursor: pointer; width: 100%; text-align: left;
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+  color: rgba(255, 255, 255, .92); background: transparent; border: 0;
+}
+.panel-menu-item:hover { background: rgba(255, 255, 255, .12); }
+.menu-ico { flex: none; width: 20px; height: 20px; display: grid; place-items: center; color: #7fe4f5; }
+.menu-ico svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============================================================
+   Mobile (< 768px): iconos en grilla, ventanas maximizadas, panel compacto
+   ============================================================ */
+@media (max-width: 767px) {
+  .desktop-icons {
+    top: 12px; left: 10px; right: 10px; bottom: auto; width: auto;
+    flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 2px;
+    overflow: visible;
+  }
+  .di { width: 68px; padding: 6px 2px; }
+  .di-ico { width: 34px; height: 34px; }
+  .di-ico svg { width: 32px; height: 32px; }
+  .di-name { font-size: 11px; }
+
+  .panel-tasks { display: none; }
+  .tray-clock { padding: 0 4px; }
+  .tray-btn { padding: 5px 9px; font-size: 11.5px; }
+  .panel-menu { width: min(280px, calc(100vw - 16px)); }
+
+  /* En mobile la ventana siempre abre maximizada y no hay arrastre: el botón
+     de maximizar sería visible pero inerte, así que se oculta. Minimizar
+     sigue funcionando y se restaura desde el icono del escritorio. */
+  .wm-max { display: none; }
+}
+
+/* Accesibilidad: sin animaciones si el usuario lo pide.
+   La apertura de ventana es un fade solo de opacidad (no toca los rects),
+   así que las mediciones de posición nunca caen a mitad de animación. */
+@keyframes wm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.wm-window.wm-appear { animation: wm-fade-in .15s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-window { transition: none; }
+  .wm-window.wm-appear { animation: none; }
+}
